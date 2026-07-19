@@ -290,52 +290,41 @@
     el.classList.add('show');
   }
 
-  function loadData(){
+  async function loadData(){
     const key = sessionStorage.getItem('nyk_key');
     if (!key){return}
     document.getElementById('loginErr').classList.remove('show');
     document.getElementById('list').innerHTML = '<div class="loading">Chargement…</div>';
 
-    // JSONP: Apps Script /exec redirects to script.googleusercontent.com without CORS headers,
-    // so fetch() hangs. Loading via <script> tag bypasses CORS entirely.
-    const cbName = '__nyk_cb_' + Math.floor(Math.random()*1e9);
-    const timeoutId = setTimeout(() => {
-      cleanup();
-      showLoginError('Aucune réponse du serveur (10 s). Vérifiez que le déploiement Apps Script est "Anyone" et republiez si vous venez de modifier le script.');
-      sessionStorage.removeItem('nyk_key');
-    }, 10000);
+    // Apps Script /exec redirects to script.googleusercontent.com without CORS headers,
+    // so direct fetch is blocked. Route through corsproxy.io to add the missing headers.
+    const target = API + '?key=' + encodeURIComponent(key);
+    const proxied = 'https://corsproxy.io/?' + encodeURIComponent(target);
 
-    function cleanup(){
-      clearTimeout(timeoutId);
-      delete window[cbName];
-      if (s.parentNode) s.parentNode.removeChild(s);
+    let j;
+    try{
+      const r = await fetch(proxied);
+      const txt = await r.text();
+      j = JSON.parse(txt);
+    }catch(err){
+      console.error(err);
+      showLoginError('Erreur réseau. Réessayez dans un instant.');
+      sessionStorage.removeItem('nyk_key');
+      return;
     }
-
-    window[cbName] = function(j){
-      cleanup();
-      if (!j || !j.ok){
-        showLoginError('Clé invalide — vérifiez ADMIN_KEY dans le script Google.');
-        sessionStorage.removeItem('nyk_key');
-        return;
-      }
-      document.getElementById('login').style.display='none';
-      document.getElementById('dash').classList.add('show');
-      document.getElementById('actions').style.display='flex';
-      all = j.rows || [];
-      headers = j.headers || [];
-      filtered = all;
-      renderStats();
-      render();
-    };
-
-    const s = document.createElement('script');
-    s.src = API + '?callback=' + cbName + '&key=' + encodeURIComponent(key);
-    s.onerror = () => {
-      cleanup();
-      showLoginError('Impossible de charger le script backend. Vérifiez l\'URL API et le déploiement.');
+    if (!j.ok){
+      showLoginError('Clé invalide — vérifiez ADMIN_KEY dans le script Google.');
       sessionStorage.removeItem('nyk_key');
-    };
-    document.body.appendChild(s);
+      return;
+    }
+    document.getElementById('login').style.display='none';
+    document.getElementById('dash').classList.add('show');
+    document.getElementById('actions').style.display='flex';
+    all = j.rows || [];
+    headers = j.headers || [];
+    filtered = all;
+    renderStats();
+    render();
   }
 
   function renderStats(){
