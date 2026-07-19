@@ -284,29 +284,48 @@
     document.getElementById('actions').style.display='none';
   }
 
+  function showLoginError(msg){
+    const el = document.getElementById('loginErr');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
   async function loadData(){
     const key = sessionStorage.getItem('nyk_key');
     if (!key){return}
+    document.getElementById('loginErr').classList.remove('show');
     document.getElementById('list').innerHTML = '<div class="loading">Chargement…</div>';
+    let r, txt;
     try{
-      const r = await fetch(API + '?key=' + encodeURIComponent(key));
-      const j = await r.json();
-      if (!j.ok){
-        document.getElementById('loginErr').classList.add('show');
-        sessionStorage.removeItem('nyk_key');
-        return;
-      }
-      document.getElementById('login').style.display='none';
-      document.getElementById('dash').classList.add('show');
-      document.getElementById('actions').style.display='flex';
-      all = j.rows || [];
-      headers = j.headers || [];
-      filtered = all;
-      renderStats();
-      render();
+      r = await fetch(API + '?key=' + encodeURIComponent(key), {method:'GET',redirect:'follow'});
+      txt = await r.text();
     }catch(err){
-      document.getElementById('list').innerHTML = '<div class="empty"><div class="icon">⚠</div><h3>Erreur de connexion</h3><p>Vérifiez l\'URL de l\'API dans dashboard.html</p></div>';
+      console.error('Fetch failed', err);
+      showLoginError('Impossible de joindre le serveur (CORS ou réseau). Vérifiez que le déploiement Apps Script est bien "Anyone" et cliquez encore.');
+      sessionStorage.removeItem('nyk_key');
+      return;
     }
+    let j;
+    try{ j = JSON.parse(txt); }
+    catch(err){
+      console.error('Bad JSON', txt.slice(0,200));
+      showLoginError('Réponse invalide du serveur. Le déploiement Apps Script doit avoir "Qui a accès : Tout le monde" (Anyone).');
+      sessionStorage.removeItem('nyk_key');
+      return;
+    }
+    if (!j.ok){
+      showLoginError('Clé invalide — vérifiez ADMIN_KEY dans le script Google.');
+      sessionStorage.removeItem('nyk_key');
+      return;
+    }
+    document.getElementById('login').style.display='none';
+    document.getElementById('dash').classList.add('show');
+    document.getElementById('actions').style.display='flex';
+    all = j.rows || [];
+    headers = j.headers || [];
+    filtered = all;
+    renderStats();
+    render();
   }
 
   function renderStats(){
