@@ -592,10 +592,8 @@
     </p>
   </div>
 
-  <form id="applyForm" action="https://formsubmit.co/souh445@gmail.com" method="POST">
-    <input type="hidden" name="_subject" value="Nouvelle candidature Franchise — Le New Yorkais">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_template" value="table">
+  <form id="applyForm" action="https://script.google.com/macros/s/AKfycbwWpLLmwDw00q4kdojaTysDe17QbOha0wle4RQ3BK8QWsNvHwD046gNWrrWt6pRGJ3F/exec" method="POST">
+    <input type="hidden" name="_next" value="https://souheilcharefkhoudja.github.io/newyorkais-franchies/merci.html">
     <input type="text" name="_honey" style="display:none">
 
     <div class="progress"><div class="bar" id="bar"></div></div>
@@ -773,8 +771,21 @@
   prevBtn.addEventListener('click', () => {
     if (current > 1){ current--; render(); window.scrollTo({top:document.getElementById('candidature').offsetTop-40,behavior:'smooth'}); }
   });
-  document.getElementById('applyForm').addEventListener('submit', (e) => {
-    if (!validateStep()){ e.preventDefault(); errMsg.classList.add('show'); }
+  document.getElementById('applyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateStep()){ errMsg.classList.add('show'); return; }
+    const form = e.target;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours…';
+    try {
+      await fetch(form.action, { method:'POST', mode:'no-cors', body:new FormData(form) });
+      window.location.href = './merci.html';
+    } catch(err){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Envoyer ma candidature';
+      errMsg.textContent = 'Erreur d\'envoi. Merci de réessayer.';
+      errMsg.classList.add('show');
+    }
   });
   window.addEventListener('scroll',()=>{
     document.getElementById('topnav').classList.toggle('scrolled',window.scrollY>60);
