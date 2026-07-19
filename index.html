@@ -40,10 +40,10 @@
   }
   .site-bg .slide{
     position:absolute;inset:0;
-    background-size:cover;background-position:center;
+    background-size:cover;background-position:center center;
     opacity:0;
     animation:bgcycle 40s infinite;
-    filter:contrast(1.08) saturate(1.15);
+    filter:contrast(1.05) saturate(1.1) brightness(.92);
   }
   .site-bg .slide:nth-child(1){background-image:url('./images/1.jpg');animation-delay:0s}
   .site-bg .slide:nth-child(2){background-image:url('./images/2.jpg');animation-delay:8s}
@@ -51,17 +51,17 @@
   .site-bg .slide:nth-child(4){background-image:url('./images/4.jpg');animation-delay:24s}
   .site-bg .slide:nth-child(5){background-image:url('./images/5.jpg');animation-delay:32s}
   @keyframes bgcycle{
-    0%   {opacity:0;transform:scale(1.02)}
-    5%   {opacity:1}
-    20%  {opacity:1;transform:scale(1.08)}
-    25%  {opacity:0}
+    0%   {opacity:0;transform:scale(1.04)}
+    3%   {opacity:1}
+    20%  {opacity:1;transform:scale(1.12)}
+    23%  {opacity:0;transform:scale(1.14)}
     100% {opacity:0}
   }
   .site-bg::after{
     content:"";position:absolute;inset:0;
     background:
-      radial-gradient(1200px 700px at 80% 20%,rgba(225,29,36,.14),transparent 65%),
-      linear-gradient(180deg,rgba(5,5,5,.55) 0%,rgba(5,5,5,.6) 100%);
+      radial-gradient(ellipse at center,transparent 30%,rgba(5,5,5,.55) 100%),
+      linear-gradient(180deg,rgba(5,5,5,.25) 0%,rgba(5,5,5,.15) 40%,rgba(5,5,5,.45) 100%);
     pointer-events:none;
   }
   ::selection{background:var(--red);color:#fff}
@@ -113,11 +113,12 @@
   /* ————— HERO ————— */
   header.hero{
     position:relative;min-height:100vh;
-    display:flex;align-items:center;
+    display:flex;align-items:center;justify-content:center;text-align:center;
     padding:160px 0 100px;
     overflow:hidden;
-    background:linear-gradient(180deg,rgba(5,5,5,.35) 0%,rgba(5,5,5,.55) 60%,rgba(5,5,5,.85) 100%);
+    background:transparent;
   }
+  .hero .wrap{max-width:1000px}
   .hero-bg{display:none}
   @keyframes slowzoom{from{transform:scale(1.05)}to{transform:scale(1.12)}}
   .hero-bg::after{
@@ -143,37 +144,35 @@
     text-shadow:0 0 60px rgba(225,29,36,.15);
   }
   .eyebrow{
-    display:inline-flex;align-items:center;gap:14px;
-    font-size:11px;letter-spacing:.35em;text-transform:uppercase;
-    color:var(--gold);font-weight:600;
-    margin-bottom:32px;
+    display:inline-block;
+    font-size:12px;letter-spacing:.55em;text-transform:uppercase;
+    color:rgba(245,242,236,.9);font-weight:400;
+    margin-bottom:36px;
   }
-  .eyebrow::before{content:"";width:48px;height:1px;background:var(--gold)}
   h1.title{
     font-family:'Playfair Display',serif;
-    font-weight:800;
-    font-size:clamp(56px,9vw,148px);
-    line-height:.9;letter-spacing:-.025em;
-    margin-bottom:36px;
-    max-width:14ch;
-    text-shadow:0 4px 40px rgba(0,0,0,.5);
+    font-weight:400;
+    font-size:clamp(64px,10vw,160px);
+    line-height:1.02;letter-spacing:-.015em;
+    margin:0 auto 36px;
+    max-width:16ch;
+    text-shadow:0 4px 60px rgba(0,0,0,.55);
+    color:var(--cream);
   }
-  h1.title em{font-style:italic;color:var(--red);font-weight:800}
-  h1.title .stroke{
-    -webkit-text-stroke:1.5px var(--cream);
-    color:transparent;
-  }
+  h1.title em{font-style:italic;font-weight:400;color:var(--cream)}
   .hero-sub{
-    font-size:20px;color:rgba(245,242,236,.75);
-    max-width:580px;margin-bottom:48px;
+    font-size:19px;color:rgba(245,242,236,.85);
+    max-width:640px;margin:0 auto 56px;
     line-height:1.65;font-weight:300;
+    letter-spacing:.02em;
+    text-shadow:0 2px 20px rgba(0,0,0,.5);
   }
-  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:100px}
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:100px}
   .hero-stats{
     display:grid;grid-template-columns:repeat(4,1fr);
     gap:48px;padding-top:48px;
-    border-top:1px solid rgba(245,242,236,.15);
-    max-width:960px;
+    border-top:1px solid rgba(245,242,236,.2);
+    max-width:960px;margin:0 auto;
   }
   .stat .n{
     font-family:'Playfair Display',serif;
@@ -496,23 +495,16 @@
 </nav>
 
 <header class="hero">
-  <div class="hero-bg"></div>
-  <div class="grain"></div>
-  <div class="hero-graf">NYC · SMASH · CULT</div>
   <div class="wrap">
-    <div class="eyebrow">Programme Franchise — Édition 2026</div>
+    <div class="eyebrow">Le New Yorkais</div>
     <h1 class="title">
-      L'adresse <em>culte,</em><br>
-      <span class="stroke">redéfinit</span><br>
-      le smash burger.
+      The Art <em>of</em> Smash.
     </h1>
     <p class="hero-sub">
-      Un produit obsessionnel. Une direction artistique urbaine.
-      Une communauté qui fait la queue avant l'ouverture.
-      Nous sélectionnons aujourd'hui les prochains territoires — pour des entrepreneurs à la hauteur.
+      Une adresse culte, un rituel urbain — devenez franchisé d'une enseigne pensée comme un lieu, pas comme un fast-food.
     </p>
     <div class="hero-cta">
-      <a href="#candidature" class="cta">Déposer ma candidature →</a>
+      <a href="#candidature" class="cta">Déposer ma candidature</a>
       <a href="#concept" class="cta ghost">Découvrir le concept</a>
     </div>
     <div class="hero-stats">
