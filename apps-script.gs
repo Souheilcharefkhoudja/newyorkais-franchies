@@ -66,24 +66,33 @@ function doPost(e) {
 
 // ---------- SERVE DATA TO THE DASHBOARD ----------
 function doGet(e) {
-  const key = (e.parameter && e.parameter.key) || '';
+  const p = e.parameter || {};
+  const callback = p.callback || '';           // JSONP support (bypasses CORS)
+  const key = p.key || '';
+  let payload;
   if (key !== ADMIN_KEY) {
-    return ContentService.createTextOutput(JSON.stringify({ok:false, error:'unauthorized'}))
-      .setMimeType(ContentService.MimeType.JSON);
+    payload = {ok:false, error:'unauthorized'};
+  } else {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss && ss.getSheetByName(SHEET_NAME);
+    if (!sheet || sheet.getLastRow() < 2) {
+      payload = {ok:true, rows:[], headers:[]};
+    } else {
+      const values = sheet.getDataRange().getValues();
+      const headers = values.shift();
+      const rows = values.map(r => {
+        const o = {};
+        headers.forEach((h,i) => o[h] = r[i]);
+        return o;
+      }).reverse();
+      payload = {ok:true, rows:rows, headers:headers};
+    }
   }
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet || sheet.getLastRow() < 2) {
-    return ContentService.createTextOutput(JSON.stringify({ok:true, rows:[]}))
-      .setMimeType(ContentService.MimeType.JSON);
+  const json = JSON.stringify(payload);
+  if (callback) {
+    return ContentService.createTextOutput(callback + '(' + json + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
-  const values = sheet.getDataRange().getValues();
-  const headers = values.shift();
-  const rows = values.map(r => {
-    const o = {};
-    headers.forEach((h,i) => o[h] = r[i]);
-    return o;
-  }).reverse();
-  return ContentService.createTextOutput(JSON.stringify({ok:true, rows:rows, headers:headers}))
+  return ContentService.createTextOutput(json)
     .setMimeType(ContentService.MimeType.JSON);
 }
